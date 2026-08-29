@@ -1,13 +1,32 @@
 import { useEffect, useState } from 'react';
-import style from "./App.module.css";
 
 export const App = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  
+  const mockApi = async (query: string): Promise<string[]> => {
+    const res = await fetch("/suggestions.json");
+    const allSuggestions = await res.json();
+    return allSuggestions.filter((suggestion: string) =>
+      suggestion.toLowerCase().includes(query.toLowerCase())
+    );
+  };
 
   useEffect(() => {
-    setSuggestions(["asd", "dsa"]);
-  }, [])
+    if (!inputValue) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const results = await mockApi(inputValue);
+      setSuggestions(results);
+    }, 300);
+    
+    mockApi(inputValue);
+
+    return () => clearTimeout(timer);
+  }, [inputValue]);
   
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-8 text-white">
