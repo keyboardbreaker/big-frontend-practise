@@ -7,7 +7,7 @@ export const App = () => {
 
   useEffect(() => {
     setSuggestions(["asd", "dsa"]);
-  })
+  }, [])
   
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-8 text-white">
@@ -21,8 +21,8 @@ export const App = () => {
         />
         <ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
-            suggestions.map(suggestion => (
-              <li className="text-black p-2 hover:bg-gray-200">{suggestion}</li>
+            suggestions.map((suggestion, key) => (
+              <li key={key} className="text-black p-2 hover:bg-gray-200">{suggestion}</li>
             ))
           }
         </ul>
