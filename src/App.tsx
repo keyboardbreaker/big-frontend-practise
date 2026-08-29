@@ -12,6 +12,11 @@ export const App = () => {
     );
   };
 
+  const handleSuggestion = (suggestion: string) => {
+    setInputValue(suggestion);
+    setSuggestions([]);
+  }
+
   useEffect(() => {
     if (!inputValue) {
       setSuggestions([]);
@@ -41,7 +46,11 @@ export const App = () => {
         <ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
             suggestions.map((suggestion, key) => (
-              <li key={key} className="text-black p-2 hover:bg-gray-200">{suggestion}</li>
+                <li 
+                  onClick={() =>handleSuggestion(suggestion)} 
+                  key={key} className="text-black p-2 hover:bg-gray-200">
+                    {suggestion}
+                </li>
             ))
           }
         </ul>
