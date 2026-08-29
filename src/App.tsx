@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const App = () => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -12,10 +12,21 @@ export const App = () => {
     );
   };
 
-  const handleSuggestion = (suggestion: string) => {
+  // const handleSuggestion = (suggestion: string) => {
+  //   setInputValue(suggestion);
+  //   setSuggestions([]);
+  // }
+
+  const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
+    const suggestion = e.currentTarget.dataset.value!;
     setInputValue(suggestion);
     setSuggestions([]);
-  }
+  }, []);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.currentTarget.value;
+    setInputValue(input);
+  }, []);
 
   useEffect(() => {
     if (!inputValue) {
@@ -40,15 +51,16 @@ export const App = () => {
         <input
           className="w-full border border-white p-2"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={handleInputChange}
           placeholder="Enter your search..."
         />
         <ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
-            suggestions.map((suggestion, key) => (
+            suggestions.map((suggestion) => (
                 <li 
-                  onClick={() =>handleSuggestion(suggestion)} 
-                  key={key} className="text-black p-2 hover:bg-gray-200">
+                  onClick={handleSuggestionClick} 
+                  data-value={suggestion}
+                  key={suggestion} className="text-black p-2 hover:bg-gray-200">
                     {suggestion}
                 </li>
             ))
