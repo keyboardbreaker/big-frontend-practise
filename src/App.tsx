@@ -12,19 +12,24 @@ export const App = () => {
     );
   };
 
-  // const handleSuggestion = (suggestion: string) => {
-  //   setInputValue(suggestion);
-  //   setSuggestions([]);
-  // }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!suggestions.length) return;
+
+      if (e.key === "ArrowDown") {
+        console.log("select in the list of suggestions");
+
+      }
+    }, [suggestions]);
 
   const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
-    const suggestion = e.currentTarget.dataset.value!;
+    const suggestion:string = e.currentTarget.dataset.value!;
     setInputValue(suggestion);
     setSuggestions([]);
   }, []);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.currentTarget.value;
+    const input:string = e.currentTarget.value;
     setInputValue(input);
   }, []);
 
@@ -53,6 +58,7 @@ export const App = () => {
           value={inputValue}
           onChange={handleInputChange}
           placeholder="Enter your search..."
+          onKeyDown={handleKeyDown}
         />
         <ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
