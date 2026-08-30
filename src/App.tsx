@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 export const App = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   
   const mockApi = async (query: string): Promise<string[]> => {
     const res = await fetch("/suggestions.json");
@@ -17,9 +18,11 @@ export const App = () => {
       if (!suggestions.length) return;
 
       if (e.key === "ArrowDown") {
-        console.log("select in the list of suggestions");
-
-      }
+        setHighlightedIndex((prev) => {
+          if (prev === null) return 0;
+          return Math.min(prev + 1, suggestions.length - 1);
+        })
+      };
     }, [suggestions]);
 
   const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
@@ -62,11 +65,14 @@ export const App = () => {
         />
         <ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
-            suggestions.map((suggestion) => (
+            suggestions.map((suggestion, index) => (
                 <li 
+                  className={highlightedIndex === index ? 
+                    "bg-gray-300 text-black p-2 cursor-pointer" : 
+                    "text-black p-2 hover:bg-gray-200 cursor-pointer"}
                   onClick={handleSuggestionClick} 
                   data-value={suggestion}
-                  key={suggestion} className="text-black p-2 hover:bg-gray-200">
+                  key={suggestion}>
                     {suggestion}
                 </li>
             ))
