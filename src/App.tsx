@@ -21,8 +21,18 @@ export const App = () => {
         setHighlightedIndex((prev) => {
           if (prev === null) return 0;
           return Math.min(prev + 1, suggestions.length - 1);
-        })
+        });
       };
+      if (e.key === "ArrowUp") {
+        setHighlightedIndex((prev) => {
+          if (prev === null) return suggestions.length - 1;
+          return Math.max(prev - 1, 0);
+        });
+      }
+      if (e.key === "Enter" && highlightedIndex !== null) {
+        setInputValue(suggestions[highlightedIndex]);
+        //setIsOpen(false);
+      }
     }, [suggestions]);
 
   const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
