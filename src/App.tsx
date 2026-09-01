@@ -33,7 +33,7 @@ export const App = () => {
         setInputValue(suggestions[highlightedIndex]);
         //setIsOpen(false);
       }
-    }, [suggestions]);
+    }, [suggestions, highlightedIndex, setInputValue]);
 
   const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
     const suggestion:string = e.currentTarget.dataset.value!;
