@@ -1,56 +1,107 @@
-import { useCallback, useState } from 'react';
-import reactLogo from '/react.svg';
-import viteLogo from '/vite.svg';
+import { useCallback, useEffect, useState } from 'react';
 
 export const App = () => {
-  const [count, setCount] = useState(0);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const increase = useCallback(() => {
-    setCount((count) => count + 1);
+  const mockApi = async (query: string): Promise<string[]> => {
+    const res = await fetch("/suggestions.json");
+    const allSuggestions = await res.json();
+    return allSuggestions.filter((suggestion: string) =>
+      suggestion.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!suggestions.length) return;
+
+      if (e.key === "ArrowDown") {
+        setHighlightedIndex((prev) => {
+          if (prev === null) return 0;
+          return Math.min(prev + 1, suggestions.length - 1);
+        });
+      };
+      if (e.key === "ArrowUp") {
+        setHighlightedIndex((prev) => {
+          if (prev === null) return suggestions.length - 1;
+          return Math.max(prev - 1, 0);
+        });
+      }
+      if (e.key === "Enter" && highlightedIndex !== null) {
+        setInputValue(suggestions[highlightedIndex]);
+        setIsOpen(false); 
+      }
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+
+  }, [suggestions, highlightedIndex, setInputValue, setIsOpen]);
+
+  const handleBlur = useCallback(() => {
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 100);
   }, []);
 
+  const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
+    const suggestion:string = e.currentTarget.dataset.value!;
+    setInputValue(suggestion);
+    setIsOpen(false); 
+  }, []);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const input:string = e.currentTarget.value;
+    setInputValue(input);
+    setIsOpen(true);
+  }, []);
+
+  useEffect(() => {
+    if (!inputValue) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      const results = await mockApi(inputValue);
+      setSuggestions(results);
+    }, 300);
+    
+    mockApi(inputValue);
+
+    return () => clearTimeout(timer);
+  }, [inputValue]);
+  
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-900 p-8 text-white">
-      <div className="mb-8 flex gap-8">
-        <a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
-          <img
-            src={viteLogo}
-            className="h-24 w-24 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa]"
-            alt="Vite logo"
-          />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
-          <img
-            src={reactLogo}
-            className="h-24 w-24 animate-spin transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa]"
-            alt="React logo"
-            style={{ animationDuration: '20s' }}
-          />
-        </a>
+      <label>Smart Autocomplete</label>
+      <div className="relative w-full max-w-sm">
+        <input
+          className="w-full border border-white p-2"
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder="Enter your search..."
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+        />
+        {isOpen && suggestions.length > 0 &&(<ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
+          {
+            suggestions.map((suggestion, index) => (
+                <li 
+                  className={highlightedIndex === index ? 
+                    "bg-gray-300 text-black p-2 cursor-pointer" : 
+                    "text-black p-2 hover:bg-gray-200 cursor-pointer"}
+                  onClick={handleSuggestionClick} 
+                  data-value={suggestion}
+                  key={suggestion}>
+                    {suggestion}
+                </li>
+            ))
+          }
+        </ul>)}
       </div>
-
-      <h1 className="mb-8 text-center text-4xl font-bold">Vite + React</h1>
-
-      <div className="mb-8 flex flex-col items-center justify-center rounded-lg bg-gray-800 p-6 shadow-lg">
-        <button
-          type="button"
-          onClick={increase}
-          className="mb-4 rounded bg-gray-700 px-4 py-2 font-medium text-white transition-colors duration-200 hover:bg-gray-600"
-        >
-          count is {count}
-        </button>
-        <p className="text-gray-300">
-          Edit{' '}
-          <code className="rounded bg-gray-700 px-2 py-1 text-yellow-300">
-            src/App.tsx
-          </code>{' '}
-          and save to test HMR
-        </p>
-      </div>
-
-      <p className="text-center text-gray-400">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
   );
 };
