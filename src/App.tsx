@@ -4,7 +4,8 @@ export const App = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
-  
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const mockApi = async (query: string): Promise<string[]> => {
     const res = await fetch("/suggestions.json");
     const allSuggestions = await res.json();
@@ -31,19 +32,24 @@ export const App = () => {
       }
       if (e.key === "Enter" && highlightedIndex !== null) {
         setInputValue(suggestions[highlightedIndex]);
-        //setIsOpen(false);
+        setIsOpen(false); 
       }
-    }, [suggestions, highlightedIndex, setInputValue]);
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+
+  }, [suggestions, highlightedIndex, setInputValue, setIsOpen]);
 
   const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
     const suggestion:string = e.currentTarget.dataset.value!;
     setInputValue(suggestion);
-    setSuggestions([]);
+    setIsOpen(false); 
   }, []);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const input:string = e.currentTarget.value;
     setInputValue(input);
+    setIsOpen(true);
   }, []);
 
   useEffect(() => {
@@ -73,7 +79,7 @@ export const App = () => {
           placeholder="Enter your search..."
           onKeyDown={handleKeyDown}
         />
-        <ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
+        {isOpen && suggestions.length > 0 &&(<ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
             suggestions.map((suggestion, index) => (
                 <li 
@@ -87,7 +93,7 @@ export const App = () => {
                 </li>
             ))
           }
-        </ul>
+        </ul>)}
       </div>
     </div>
   );
