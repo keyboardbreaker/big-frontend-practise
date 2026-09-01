@@ -40,6 +40,12 @@ export const App = () => {
 
   }, [suggestions, highlightedIndex, setInputValue, setIsOpen]);
 
+  const handleBlur = useCallback(() => {
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 100);
+  }, []);
+
   const handleSuggestionClick = useCallback((e: React.MouseEvent<HTMLLIElement>) => {
     const suggestion:string = e.currentTarget.dataset.value!;
     setInputValue(suggestion);
@@ -78,6 +84,7 @@ export const App = () => {
           onChange={handleInputChange}
           placeholder="Enter your search..."
           onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
         />
         {isOpen && suggestions.length > 0 &&(<ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
