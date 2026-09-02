@@ -85,11 +85,20 @@ export const App = () => {
           placeholder="Enter your search..."
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-controls="suggestion-list"
+          aria-autocomplete="list"
         />
-        {isOpen && suggestions.length > 0 &&(<ul className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
+        {isOpen && suggestions.length > 0 &&(
+        <ul
+          role="listbox"  
+          className="absolute left-0 top-full w-full bg-white shadow-md mt-1">
           {
             suggestions.map((suggestion, index) => (
                 <li 
+                  role="option"
+                  aria-selected={highlightedIndex === index}
                   className={highlightedIndex === index ? 
                     "bg-gray-300 text-black p-2 cursor-pointer" : 
                     "text-black p-2 hover:bg-gray-200 cursor-pointer"}
